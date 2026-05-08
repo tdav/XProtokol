@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Library</OutputType>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+
+    <!-- NuGet package metadata -->
+    <PackageId>XProtocol</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>tdav</Authors>
+    <Company>tdav</Company>
+    <Product>XProtocol</Product>
+    <Description>Lightweight binary protocol library for .NET over TCP. Implements packet creation, C# object serialization/deserialization, and optional AES-256 encryption.</Description>
+    <PackageTags>tcp;protocol;binary;network;serialization;encryption;aes</PackageTags>
+    <PackageProjectUrl>https://github.com/tdav/XProtokol</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/tdav/XProtokol</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\"/>
+  </ItemGroup>
+</Project>

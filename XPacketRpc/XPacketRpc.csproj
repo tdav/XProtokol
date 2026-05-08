@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<LangVersion>latest</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<RootNamespace>XPacketRpc</RootNamespace>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<NoWarn>$(NoWarn);CS1591</NoWarn>
+
+		<!-- NuGet package metadata -->
+		<PackageId>XPacketRpc</PackageId>
+		<Version>1.0.0</Version>
+		<Authors>tdav</Authors>
+		<Company>tdav</Company>
+		<Product>XPacketRpc</Product>
+		<Description>RPC layer on top of XProtocol — lightweight binary TCP protocol for .NET. Provides remote procedure call abstractions over XPacket transport.</Description>
+		<PackageTags>tcp;rpc;protocol;binary;network;xprotocol</PackageTags>
+		<PackageProjectUrl>https://github.com/tdav/XProtokol</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/tdav/XProtokol</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="README.md" Pack="true" PackagePath="\"/>
+	</ItemGroup>
+</Project>
