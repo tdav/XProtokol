@@ -1,8 +1,25 @@
 # XProtokol
 
-> Исходный код приложения для статьи на Xakep.ru — [«Своими руками: пишем свой протокол поверх TCP»](https://xakep.ru/2019/02/01/diy-tcp/)
+> Исходный код приложения для статьи на Xakep.ru — [«Своими руками: пишем свой протокол поверх TCP»](https://xakep.ru/2019/02/[...])
 
 A lightweight TCP client-server framework for .NET 10 with a custom binary protocol, field-based packet serialization, and built-in AES-256 encryption.
+
+## About
+
+**XProtokol** — учебно-практический проект на **C# / .NET 10**, демонстрирующий реализацию **кастомного бинарного протокола поверх TCP**.
+
+Ключевые цели репозитория:
+
+- показать устройство пакетов (тип/подтип + набор полей)
+- реализовать сериализацию/десериализацию DTO в поля пакета
+- продемонстрировать шифрование полезной нагрузки (**AES-256-CBC**) и handshake
+- предоставить примеры клиента и сервера на `TcpClient`/`TcpListener`
+
+Если вы используете проект как основу для собственного протокола/транспорта — рекомендуется:
+
+- вынести контрактные DTO в отдельный проект
+- добавить версионирование протокола
+- покрыть критические участки тестами и бенчмарками (они уже есть в репозитории)
 
 ## Projects
 
@@ -123,7 +140,6 @@ byte[] decrypted2 = RijndaelHandler.Decrypt(encrypted2, "my-passphrase");
 4. Handle the new type in the client/server `switch` statement.
 
 ## Project Structure
-
 
 ```
 XProtokol/
