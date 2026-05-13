@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using TUnit.Assertions;
 using TUnit.Assertions.Extensions;
@@ -266,6 +267,19 @@ namespace XProtocol.Tests
             await Assert.That(restored.A).IsEqualTo(original.A);
             await Assert.That(restored.S).IsEqualTo(original.S);
             await Assert.That(restored.B).IsEqualTo(original.B);
+        }
+
+        [Test]
+        public async Task Serialize_StringOverflow_Throws()
+        {
+            var s = new string('x', ushort.MaxValue + 1);  // 65536
+            var dto = new StringDto { A = 10, S = s, B = false };
+
+            var ex = await Assert.That(() => XPacketConverter.Serialize(dto))
+                .ThrowsExactly<InvalidOperationException>();
+
+            await Assert.That(ex.Message).Contains("exceeds 65535");
+            await Assert.That(ex.Message).Contains("StringDto");
         }
     }
 }
