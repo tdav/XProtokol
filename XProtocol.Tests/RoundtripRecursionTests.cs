@@ -133,5 +133,49 @@ namespace XProtocol.Tests
             await Assert.That(back.Members[1].Home.Street).IsEqualTo("");
             await Assert.That(back.Locations[2].Street).IsEqualTo("Branch");
         }
+        [Test]
+        public async Task Encrypted_NestedWithCollections_Roundtrips()
+        {
+            var dto = new NestedWithCollectionsDto
+            {
+                Title = "Encrypted Project",
+                Owner = new Person { Name = "Alice", Age = 40, Home = new Address { Street = "S1", Zip = 100 } },
+                Members = new List<Person>
+                {
+                    new Person { Name = "Bob", Age = 30, Home = new Address { Street = "S2", Zip = 200 } }
+                },
+                Locations = new Dictionary<int, Address>
+                {
+                    { 1, new Address { Street = "HQ", Zip = 1000 } }
+                }
+            };
+
+            var packet = XPacketConverter.Serialize(dto);
+            var encrypted = packet.Encrypt().ToPacket();
+            var parsed = XPacket.Parse(encrypted);
+            var back = XPacketConverter.Deserialize<NestedWithCollectionsDto>(parsed);
+
+            await Assert.That(back.Title).IsEqualTo("Encrypted Project");
+            await Assert.That(back.Owner.Name).IsEqualTo("Alice");
+            await Assert.That(back.Members[0].Home.Street).IsEqualTo("S2");
+            await Assert.That(back.Locations[1].Zip).IsEqualTo(1000);
+        }
+
+        [Test]
+        public async Task Encrypted_LargeJaggedArray_Roundtrips()
+        {
+            var rows = Enumerable.Range(0, 20)
+                .Select(i => Enumerable.Range(0, 5).Select(j => i * 100 + j).ToArray())
+                .ToArray();
+            var dto = new JaggedIntArrayDto { Rows = rows };
+
+            var packet = XPacketConverter.Serialize(dto);
+            var encrypted = packet.Encrypt().ToPacket();
+            var parsed = XPacket.Parse(encrypted);
+            var back = XPacketConverter.Deserialize<JaggedIntArrayDto>(parsed);
+
+            await Assert.That(back.Rows.Length).IsEqualTo(20);
+            await Assert.That(back.Rows[5][3]).IsEqualTo(503);
+        }
     }
 }
