@@ -84,5 +84,85 @@ namespace XProtocol.Tests
             await Assert.That(restored.S).IsEqualTo(original.S);
             await Assert.That(restored.B).IsEqualTo(original.B);
         }
+
+        [Test]
+        public async Task StringDto_Roundtrip_EmptyString()
+        {
+            var original = new StringDto { A = 1, S = "", B = false };
+            var packet = XPacketConverter.Serialize(original);
+
+            await Assert.That(packet.Fields.Count).IsEqualTo(3);
+            await Assert.That(packet.Fields[1].FieldSize).IsEqualTo((byte)2);
+
+            var bytes = packet.ToPacket();
+            var parsed = XPacket.Parse(bytes);
+            var restored = XPacketConverter.Deserialize<StringDto>(parsed);
+
+            await Assert.That(restored.S).IsEqualTo("");
+        }
+
+        [Test]
+        public async Task StringDto_Roundtrip_NullString_NormalizesToEmpty()
+        {
+            var original = new StringDto { A = 1, S = null, B = true };
+            var packet = XPacketConverter.Serialize(original);
+            var bytes = packet.ToPacket();
+            var parsed = XPacket.Parse(bytes);
+
+            var restored = XPacketConverter.Deserialize<StringDto>(parsed);
+
+            await Assert.That(restored.S).IsEqualTo("");
+        }
+
+        [Test]
+        public async Task StringDto_Roundtrip_253ByteAscii_SingleChunk()
+        {
+            var s = new string('a', 253);
+            var original = new StringDto { A = 2, S = s, B = false };
+            var packet = XPacketConverter.Serialize(original);
+
+            await Assert.That(packet.Fields.Count).IsEqualTo(3);
+            await Assert.That(packet.Fields[1].FieldSize).IsEqualTo((byte)255);
+
+            var bytes = packet.ToPacket();
+            var parsed = XPacket.Parse(bytes);
+            var restored = XPacketConverter.Deserialize<StringDto>(parsed);
+
+            await Assert.That(restored.S).IsEqualTo(s);
+        }
+
+        [Test]
+        public async Task StringDto_Roundtrip_254ByteAscii_TwoChunks()
+        {
+            var s = new string('a', 254);
+            var original = new StringDto { A = 3, S = s, B = false };
+            var packet = XPacketConverter.Serialize(original);
+
+            await Assert.That(packet.Fields.Count).IsEqualTo(4);
+            await Assert.That(packet.Fields[1].FieldSize).IsEqualTo((byte)255);
+            await Assert.That(packet.Fields[2].FieldSize).IsEqualTo((byte)1);
+
+            var bytes = packet.ToPacket();
+            var parsed = XPacket.Parse(bytes);
+            var restored = XPacketConverter.Deserialize<StringDto>(parsed);
+
+            await Assert.That(restored.S).IsEqualTo(s);
+        }
+
+        [Test]
+        public async Task StringDto_Roundtrip_510ByteAscii_ThreeChunks()
+        {
+            var s = new string('a', 510);
+            var original = new StringDto { A = 4, S = s, B = false };
+            var packet = XPacketConverter.Serialize(original);
+
+            await Assert.That(packet.Fields.Count).IsEqualTo(5);
+
+            var bytes = packet.ToPacket();
+            var parsed = XPacket.Parse(bytes);
+            var restored = XPacketConverter.Deserialize<StringDto>(parsed);
+
+            await Assert.That(restored.S).IsEqualTo(s);
+        }
     }
 }
