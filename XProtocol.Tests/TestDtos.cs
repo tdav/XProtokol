@@ -14,7 +14,7 @@ namespace XProtocol.Tests
     public class BadDtoWithReferenceField
     {
         public int A;
-        public int[] Bad;
+        public System.Collections.Generic.HashSet<int> Bad;
     }
 
     public class StringDto
@@ -47,6 +47,84 @@ namespace XProtocol.Tests
         public string X;
     }
 
+    public class IntArrayDto
+    {
+        public int A;
+        public int[] Values;
+    }
+
+    public class ByteArrayDto
+    {
+        public byte[] Payload;
+    }
+
+    public class StringArrayDto
+    {
+        public string[] Tags;
+    }
+
+    public class IntListDto
+    {
+        public System.Collections.Generic.List<int> Numbers;
+    }
+
+    public class StringListDto
+    {
+        public string Header;
+        public System.Collections.Generic.List<string> Items;
+    }
+
+    public class IntStringDictDto
+    {
+        public System.Collections.Generic.Dictionary<int, string> Map;
+    }
+
+    public class StringIntDictDto
+    {
+        public System.Collections.Generic.Dictionary<string, int> Map;
+    }
+
+    public class Address
+    {
+        public string Street;
+        public int Zip;
+    }
+
+    public class Person
+    {
+        public string Name;
+        public int Age;
+        public Address Home;
+    }
+
+    public class JaggedIntArrayDto
+    {
+        public int[][] Rows;
+    }
+
+    public class ListOfIntArrayDto
+    {
+        public System.Collections.Generic.List<int[]> Buckets;
+    }
+
+    public class ListOfListDto
+    {
+        public System.Collections.Generic.List<System.Collections.Generic.List<string>> Pages;
+    }
+
+    public class DictOfListDto
+    {
+        public System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<int>> Groups;
+    }
+
+    public class NestedWithCollectionsDto
+    {
+        public string Title;
+        public Person Owner;
+        public System.Collections.Generic.List<Person> Members;
+        public System.Collections.Generic.Dictionary<int, Address> Locations;
+    }
+
     public static class AssemblyFixture
     {
         public const XPacketType SimpleDtoType = (XPacketType)100;
@@ -56,9 +134,21 @@ namespace XProtocol.Tests
         public static void Init()
         {
             XPacketTypeManager.Register<SimpleDto>(SimpleDtoType, 100, 0);
-            XPacketTypeManager.Register<EmptyDto>(EmptyDtoType, 101, 0);
             XPacketTypeManager.Register<StringDto>((XPacketType)200, 200, 0);
             XPacketTypeManager.Register<MultiStringDto>((XPacketType)201, 201, 0);
+            XPacketTypeManager.Register<IntArrayDto>((XPacketType)300, 44, 0);
+            XPacketTypeManager.Register<ByteArrayDto>((XPacketType)301, 45, 0);
+            XPacketTypeManager.Register<StringArrayDto>((XPacketType)302, 46, 0);
+            XPacketTypeManager.Register<IntListDto>((XPacketType)50, 50, 0);
+            XPacketTypeManager.Register<StringListDto>((XPacketType)51, 51, 0);
+            XPacketTypeManager.Register<IntStringDictDto>((XPacketType)60, 60, 0);
+            XPacketTypeManager.Register<StringIntDictDto>((XPacketType)61, 61, 0);
+            XPacketTypeManager.Register<Person>((XPacketType)70, 70, 0);
+            XPacketTypeManager.Register<JaggedIntArrayDto>((XPacketType)80, 80, 0);
+            XPacketTypeManager.Register<ListOfIntArrayDto>((XPacketType)81, 81, 0);
+            XPacketTypeManager.Register<ListOfListDto>((XPacketType)82, 82, 0);
+            XPacketTypeManager.Register<DictOfListDto>((XPacketType)83, 83, 0);
+            XPacketTypeManager.Register<NestedWithCollectionsDto>((XPacketType)84, 84, 0);
         }
     }
 }

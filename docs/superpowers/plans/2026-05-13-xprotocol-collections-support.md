@@ -44,7 +44,7 @@
 
 ### Building
 
-`dotnet build XProtocol.sln -c Debug`
+`dotnet build XProtocolSol.sln -c Debug`
 
 Expected: `Build succeeded`. Treat any warning that is also an error as a failure.
 
@@ -102,7 +102,7 @@ Expected output includes `On branch master` and **only** the expected pre-existi
 - [ ] **Step 0.2: Run baseline test suite on master**
 
 ```
-dotnet build XProtocol.sln -c Debug
+dotnet build XProtocolSol.sln -c Debug
 dotnet run --project XProtocol.Tests -c Debug
 ```
 
@@ -188,7 +188,7 @@ namespace XProtocol.Tests
 - [ ] **Step 1.2: Run test, expect compile error**
 
 ```
-dotnet build XProtocol.sln -c Debug
+dotnet build XProtocolSol.sln -c Debug
 ```
 
 Expected: `error CS0103: The name 'MarshalHelpers' does not exist`.
@@ -309,7 +309,7 @@ Delete the two private methods at the end of the class (`FixedObjectToByteArray`
 - [ ] **Step 1.6: Run full test suite, expect all 71 tests pass (68 existing + 3 new)**
 
 ```
-dotnet build XProtocol.sln -c Debug
+dotnet build XProtocolSol.sln -c Debug
 dotnet run --project XProtocol.Tests -c Debug
 ```
 
@@ -451,7 +451,7 @@ namespace XProtocol.Tests
 - [ ] **Step 2.2: Run tests, expect compile error**
 
 ```
-dotnet build XProtocol.sln -c Debug
+dotnet build XProtocolSol.sln -c Debug
 ```
 
 Expected: `error CS0246: The type or namespace name 'ChunkReader' could not be found`.
@@ -678,7 +678,7 @@ namespace XProtocol.Serializator
 - [ ] **Step 3.2: Verify it compiles**
 
 ```
-dotnet build XProtocol.sln -c Debug
+dotnet build XProtocolSol.sln -c Debug
 ```
 
 Expected: succeeds (no test exercises this yet; the hierarchy is just declared).
@@ -1063,7 +1063,7 @@ namespace XProtocol.Tests
 - [ ] **Step 4.7: Run full test suite**
 
 ```
-dotnet build XProtocol.sln -c Debug
+dotnet build XProtocolSol.sln -c Debug
 dotnet run --project XProtocol.Tests -c Debug
 ```
 
@@ -1148,7 +1148,7 @@ namespace XProtocol.Tests
 - [ ] **Step 5.2: Run, expect failure**
 
 ```
-dotnet build XProtocol.sln -c Debug
+dotnet build XProtocolSol.sln -c Debug
 dotnet run --project XProtocol.Tests -c Debug -- --treenode-filter "/*/XProtocol.Tests/XProtocol.Tests/FieldShapeResolverTests"
 ```
 
@@ -1726,8 +1726,8 @@ public class StringListDto
 Add registrations:
 
 ```csharp
-XPacketTypeManager.Register<IntListDto>((XPacketType)310, 310, 0);
-XPacketTypeManager.Register<StringListDto>((XPacketType)311, 311, 0);
+XPacketTypeManager.Register<IntListDto>((XPacketType)50, 50, 0);
+XPacketTypeManager.Register<StringListDto>((XPacketType)51, 51, 0);
 ```
 
 Create `XProtocol.Tests/RoundtripListTests.cs`:
@@ -2042,8 +2042,8 @@ public class StringIntDictDto
 Add registrations:
 
 ```csharp
-XPacketTypeManager.Register<IntStringDictDto>((XPacketType)320, 320, 0);
-XPacketTypeManager.Register<StringIntDictDto>((XPacketType)321, 321, 0);
+XPacketTypeManager.Register<IntStringDictDto>((XPacketType)60, 60, 0);
+XPacketTypeManager.Register<StringIntDictDto>((XPacketType)61, 61, 0);
 ```
 
 Create `XProtocol.Tests/RoundtripDictTests.cs`:
@@ -2437,7 +2437,7 @@ public class Person
 Add registration:
 
 ```csharp
-XPacketTypeManager.Register<Person>((XPacketType)330, 330, 0);
+XPacketTypeManager.Register<Person>((XPacketType)70, 70, 0);
 ```
 
 Create `XProtocol.Tests/RoundtripNestedTests.cs`:
@@ -2550,11 +2550,11 @@ public class NestedWithCollectionsDto
 Add registrations:
 
 ```csharp
-XPacketTypeManager.Register<JaggedIntArrayDto>((XPacketType)340, 340, 0);
-XPacketTypeManager.Register<ListOfIntArrayDto>((XPacketType)341, 341, 0);
-XPacketTypeManager.Register<ListOfListDto>((XPacketType)342, 342, 0);
-XPacketTypeManager.Register<DictOfListDto>((XPacketType)343, 343, 0);
-XPacketTypeManager.Register<NestedWithCollectionsDto>((XPacketType)344, 344, 0);
+XPacketTypeManager.Register<JaggedIntArrayDto>((XPacketType)80, 80, 0);
+XPacketTypeManager.Register<ListOfIntArrayDto>((XPacketType)81, 81, 0);
+XPacketTypeManager.Register<ListOfListDto>((XPacketType)82, 82, 0);
+XPacketTypeManager.Register<DictOfListDto>((XPacketType)83, 83, 0);
+XPacketTypeManager.Register<NestedWithCollectionsDto>((XPacketType)84, 84, 0);
 ```
 
 - [ ] **Step 12.2: Write recursion tests**

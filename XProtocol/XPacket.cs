@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 
 namespace XProtocol
 {
@@ -43,7 +42,7 @@ namespace XProtocol
                 throw new ArgumentException("Only value types are supported.", nameof(structure));
             }
 
-            var bytes = FixedObjectToByteArray(structure);
+            var bytes = XProtocol.Serializator.MarshalHelpers.ToBytes(structure, structure.GetType());
             if (bytes.Length > byte.MaxValue)
             {
                 throw new InvalidOperationException("Field is too large (>255 bytes).");
@@ -100,7 +99,7 @@ namespace XProtocol
             }
 
             var field = Fields[index];
-            return ByteArrayToFixedObject<T>(field.Contents);
+            return (T)XProtocol.Serializator.MarshalHelpers.FromBytes(field.Contents, typeof(T));
         }
 
         public object GetValueAt(int index, Type t)
@@ -287,36 +286,5 @@ namespace XProtocol
             });
         }
 
-        private static byte[] FixedObjectToByteArray(object value)
-        {
-            var size = Marshal.SizeOf(value.GetType());
-            var arr = new byte[size];
-            var ptr = Marshal.AllocHGlobal(size);
-            try
-            {
-                Marshal.StructureToPtr(value, ptr, true);
-                Marshal.Copy(ptr, arr, 0, size);
-            }
-            finally
-            {
-                Marshal.FreeHGlobal(ptr);
-            }
-            return arr;
-        }
-
-        private static T ByteArrayToFixedObject<T>(byte[] bytes) where T : struct
-        {
-            T value;
-            var handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-            try
-            {
-                value = (T)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(T));
-            }
-            finally
-            {
-                handle.Free();
-            }
-            return value;
-        }
     }
 }
