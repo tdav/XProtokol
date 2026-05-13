@@ -58,6 +58,51 @@ namespace XProtocol.Serializator
                 return new DictShape(keyType, valueType, keyShape, valueShape);
             }
 
+            if (t.IsInterface || t.IsAbstract || t.ContainsGenericParameters)
+            {
+                throw new InvalidOperationException($"Type {t.Name} is not supported.");
+            }
+
+            if (t.Namespace != null && t.Namespace.StartsWith("System"))
+            {
+                throw new InvalidOperationException($"Type {t.Name} is not supported.");
+            }
+
+            if (t.IsClass)
+            {
+                if (t.IsAbstract || t.IsInterface || t.ContainsGenericParameters)
+                {
+                    throw new InvalidOperationException(
+                        $"Type {t.Name} is not supported (abstract/interface/open generic).");
+                }
+                if (t.GetConstructor(Type.EmptyTypes) == null)
+                {
+                    throw new InvalidOperationException(
+                        $"{t.Name}: nested DTO must have public parameterless constructor.");
+                }
+                if (visiting.Contains(t))
+                {
+                    var chain = string.Join(" -> ", visiting) + $" -> {t.Name}";
+                    throw new InvalidOperationException(
+                        $"Cycle detected in type graph: {chain}.");
+                }
+                visiting.Add(t);
+                try
+                {
+                    var fields = BuildDescriptors(t, visiting);
+                    if (fields.Length == 0)
+                    {
+                        throw new InvalidOperationException(
+                            $"{t.Name}: nested DTO must have at least one serialisable field.");
+                    }
+                    return new NestedShape(t, fields);
+                }
+                finally
+                {
+                    visiting.Remove(t);
+                }
+            }
+
             throw new InvalidOperationException($"Type {t.Name} is not supported.");
         }
 

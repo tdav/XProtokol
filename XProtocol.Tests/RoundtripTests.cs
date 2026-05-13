@@ -39,20 +39,15 @@ namespace XProtocol.Tests
         }
 
         [Test]
-        public async Task EmptyDto_RoundtripProducesZeroFields()
+        public async Task EmptyDto_Register_Throws()
         {
-            var original = new EmptyDto();
-
-            var packet = XPacketConverter.Serialize(original);
-            await Assert.That(packet.Fields.Count).IsEqualTo(0);
-
-            var bytes = packet.ToPacket();
-            var parsed = XPacket.Parse(bytes);
-            await Assert.That(parsed).IsNotNull();
-            await Assert.That(parsed.Fields.Count).IsEqualTo(0);
-
-            var restored = XPacketConverter.Deserialize<EmptyDto>(parsed);
-            await Assert.That(restored).IsNotNull();
+            // EmptyDto has zero serialisable fields. The resolver rejects it at registration time.
+            // (Cannot call Register directly because it would corrupt global registry state;
+            // instead exercise the resolver to assert the rejection contract.)
+            var ex = await Assert.That(() =>
+                    XProtocol.Serializator.ShapeResolver.Resolve(typeof(EmptyDto), new System.Collections.Generic.HashSet<System.Type>()))
+                .ThrowsExactly<System.InvalidOperationException>();
+            await Assert.That(ex.Message).Contains("nested DTO must have at least one serialisable field");
         }
 
         [Test]

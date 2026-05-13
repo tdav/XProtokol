@@ -8,6 +8,36 @@ using XProtocol.Serializator;
 
 namespace XProtocol.Tests
 {
+    public class NestedDtoNeedsFields
+    {
+        public int X;
+    }
+
+    public class NestedDtoNoFields
+    {
+    }
+
+    public class NestedDtoNoPublicCtor
+    {
+        public int X;
+        public NestedDtoNoPublicCtor(int x) { this.X = x; }
+    }
+
+    public class NestedDtoCycleA
+    {
+        public NestedDtoCycleB B;
+    }
+
+    public class NestedDtoCycleB
+    {
+        public NestedDtoCycleA A;
+    }
+
+    public class NestedDtoSelfCycle
+    {
+        public NestedDtoSelfCycle Child;
+    }
+
     public class FieldShapeResolverTests
     {
         [Test]
@@ -102,6 +132,50 @@ namespace XProtocol.Tests
                     new HashSet<Type>()))
                 .ThrowsExactly<InvalidOperationException>();
             await Assert.That(ex.Message).Contains("key must be value-type or string");
+        }
+
+        [Test]
+        public async Task Resolve_NestedDto_ReturnsNestedShapeWithDescriptors()
+        {
+            var shape = ShapeResolver.Resolve(typeof(NestedDtoNeedsFields), new HashSet<Type>());
+
+            await Assert.That(shape).IsTypeOf<NestedShape>();
+            var n = (NestedShape)shape;
+            await Assert.That(n.ClrType).IsEqualTo(typeof(NestedDtoNeedsFields));
+            await Assert.That(n.Fields.Length).IsEqualTo(1);
+            await Assert.That(n.Fields[0].Shape).IsTypeOf<ValueShape>();
+        }
+
+        [Test]
+        public async Task Resolve_EmptyNestedDto_Throws()
+        {
+            var ex = await Assert.That(() => ShapeResolver.Resolve(typeof(NestedDtoNoFields), new HashSet<Type>()))
+                .ThrowsExactly<InvalidOperationException>();
+            await Assert.That(ex.Message).Contains("nested DTO must have at least one serialisable field");
+        }
+
+        [Test]
+        public async Task Resolve_NestedDtoWithoutPublicCtor_Throws()
+        {
+            var ex = await Assert.That(() => ShapeResolver.Resolve(typeof(NestedDtoNoPublicCtor), new HashSet<Type>()))
+                .ThrowsExactly<InvalidOperationException>();
+            await Assert.That(ex.Message).Contains("public parameterless constructor");
+        }
+
+        [Test]
+        public async Task Resolve_MutualCycle_Throws()
+        {
+            var ex = await Assert.That(() => ShapeResolver.Resolve(typeof(NestedDtoCycleA), new HashSet<Type>()))
+                .ThrowsExactly<InvalidOperationException>();
+            await Assert.That(ex.Message).Contains("Cycle detected");
+        }
+
+        [Test]
+        public async Task Resolve_SelfCycle_Throws()
+        {
+            var ex = await Assert.That(() => ShapeResolver.Resolve(typeof(NestedDtoSelfCycle), new HashSet<Type>()))
+                .ThrowsExactly<InvalidOperationException>();
+            await Assert.That(ex.Message).Contains("Cycle detected");
         }
     }
 }

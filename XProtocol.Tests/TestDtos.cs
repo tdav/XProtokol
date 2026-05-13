@@ -93,7 +93,6 @@ namespace XProtocol.Tests
         public static void Init()
         {
             XPacketTypeManager.Register<SimpleDto>(SimpleDtoType, 100, 0);
-            XPacketTypeManager.Register<EmptyDto>(EmptyDtoType, 101, 0);
             XPacketTypeManager.Register<StringDto>((XPacketType)200, 200, 0);
             XPacketTypeManager.Register<MultiStringDto>((XPacketType)201, 201, 0);
             XPacketTypeManager.Register<IntArrayDto>((XPacketType)300, 44, 0);
