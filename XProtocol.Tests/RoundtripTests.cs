@@ -228,5 +228,26 @@ namespace XProtocol.Tests
 
             await Assert.That(restored.S).IsEqualTo(s);
         }
+
+        [Test]
+        public async Task MultiStringDto_Roundtrip_PreservesBothStrings()
+        {
+            var original = new MultiStringDto
+            {
+                First = "alpha",
+                Middle = 42,
+                Last = new string('y', 300)  // multi-chunk
+            };
+
+            var packet = XPacketConverter.Serialize(original);
+            var bytes = packet.ToPacket();
+            var parsed = XPacket.Parse(bytes);
+
+            var restored = XPacketConverter.Deserialize<MultiStringDto>(parsed);
+
+            await Assert.That(restored.First).IsEqualTo(original.First);
+            await Assert.That(restored.Middle).IsEqualTo(original.Middle);
+            await Assert.That(restored.Last).IsEqualTo(original.Last);
+        }
     }
 }
