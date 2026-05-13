@@ -54,10 +54,11 @@ namespace XProtocol.Serializator
                 {
                     shape = Resolve(f.FieldType, visiting);
                 }
-                catch (InvalidOperationException)
+                catch (InvalidOperationException ex) when (ex.Message.Contains("is not supported"))
                 {
                     throw new InvalidOperationException(
-                        $"{f.DeclaringType.Name}.{f.Name}: only value-type fields and string are supported (got {f.FieldType.Name}).");
+                        $"{f.DeclaringType.Name}.{f.Name}: only value-type fields and string are supported (got {f.FieldType.Name}).",
+                        ex);
                 }
                 result[i] = new FieldDescriptor(f, shape);
             }

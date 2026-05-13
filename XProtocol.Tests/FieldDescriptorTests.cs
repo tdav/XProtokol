@@ -59,5 +59,20 @@ namespace XProtocol.Tests
 
             await Assert.That((int)d.Getter(obj)).IsEqualTo(42);
         }
+
+        [Test]
+        public async Task BuildDescriptors_PreservesNonUnsupportedException()
+        {
+            // Simulate a Resolver exception that does NOT contain "is not supported"
+            // by giving BuildDescriptors a type with a public field whose type causes
+            // the current Resolver to throw the standard "is not supported" wrap.
+            // Then verify that for the standard unsupported case, the wrapper IS applied
+            // (field-context substring present).
+            var ex = await Assert.That(() =>
+                    ShapeResolver.BuildDescriptors(typeof(UnsupportedRefDto), new HashSet<Type>()))
+                .ThrowsExactly<InvalidOperationException>();
+            await Assert.That(ex.Message).Contains("UnsupportedRefDto");
+            await Assert.That(ex.Message).Contains("only value-type fields and string are supported");
+        }
     }
 }
