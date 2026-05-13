@@ -29,4 +29,32 @@
 	<ItemGroup>
 		<None Include="README.md" Pack="true" PackagePath="\"/>
 	</ItemGroup>
+
+	<!-- Runtime dependency on XProtocol -->
+	<ItemGroup>
+		<ProjectReference Include="..\XProtocol\XProtocol.csproj" />
+	</ItemGroup>
+
+	<!-- Source generator: used as an analyzer locally and bundled in the NuGet package -->
+	<ItemGroup>
+		<ProjectReference Include="..\XPacketRpc.Generators\XPacketRpc.Generators.csproj"
+						  ReferenceOutputAssembly="false"
+						  OutputItemType="Analyzer"
+						  SetTargetFramework="TargetFramework=netstandard2.0" />
+	</ItemGroup>
+
+	<!--
+		Pack the generator DLL into analyzers/dotnet/cs inside the NuGet package.
+		This makes consumers of the package automatically get the source generator.
+	-->
+	<Target Name="IncludeGeneratorInPackage" BeforeTargets="_GetPackageFiles">
+		<MSBuild Projects="..\XPacketRpc.Generators\XPacketRpc.Generators.csproj"
+				 Targets="Build"
+				 Properties="Configuration=$(Configuration);TargetFramework=netstandard2.0">
+			<Output TaskParameter="TargetOutputs" ItemName="_GeneratorAssembly" />
+		</MSBuild>
+		<ItemGroup>
+			<None Include="@(_GeneratorAssembly)" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+		</ItemGroup>
+	</Target>
 </Project>

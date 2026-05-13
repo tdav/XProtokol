@@ -5,6 +5,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\XPacketRpc\XPacketRpc.csproj" />
     <ProjectReference Include="..\XProtocol\XProtocol.csproj" />
   </ItemGroup>
 </Project>
