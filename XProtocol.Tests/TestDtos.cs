@@ -14,7 +14,27 @@ namespace XProtocol.Tests
     public class BadDtoWithReferenceField
     {
         public int A;
-        public string Bad;
+        public int[] Bad;
+    }
+
+    public class StringDto
+    {
+        public int A;
+        public string S;
+        public bool B;
+    }
+
+    public class MultiStringDto
+    {
+        public string First;
+        public int Middle;
+        public string Last;
+    }
+
+    public class UnsupportedRefDto
+    {
+        public int A;
+        public object Bad;
     }
 
     public class UnregisteredDto

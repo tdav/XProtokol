@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using System.Threading.Tasks;
 using TUnit.Assertions;
 using TUnit.Assertions.Extensions;
 using TUnit.Core;
