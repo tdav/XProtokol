@@ -17,7 +17,7 @@ namespace XProtocol.Serializator
             var ptr = Marshal.AllocHGlobal(size);
             try
             {
-                Marshal.StructureToPtr(value, ptr, true);
+                Marshal.StructureToPtr(value, ptr, false);
                 Marshal.Copy(ptr, arr, 0, size);
             }
             finally
