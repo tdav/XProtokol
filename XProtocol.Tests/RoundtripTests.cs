@@ -249,5 +249,23 @@ namespace XProtocol.Tests
             await Assert.That(restored.Middle).IsEqualTo(original.Middle);
             await Assert.That(restored.Last).IsEqualTo(original.Last);
         }
+
+        [Test]
+        public async Task StringDto_Roundtrip_EncryptedPath_900Bytes()
+        {
+            var s = new string('z', 900);
+            var original = new StringDto { A = 9, S = s, B = true };
+
+            var packet = XPacketConverter.Serialize(original);
+            var encryptedBytes = packet.Encrypt().ToPacket();
+            var parsed = XPacket.Parse(encryptedBytes);
+            await Assert.That(parsed).IsNotNull();
+
+            var restored = XPacketConverter.Deserialize<StringDto>(parsed);
+
+            await Assert.That(restored.A).IsEqualTo(original.A);
+            await Assert.That(restored.S).IsEqualTo(original.S);
+            await Assert.That(restored.B).IsEqualTo(original.B);
+        }
     }
 }
