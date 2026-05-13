@@ -1726,8 +1726,8 @@ public class StringListDto
 Add registrations:
 
 ```csharp
-XPacketTypeManager.Register<IntListDto>((XPacketType)310, 310, 0);
-XPacketTypeManager.Register<StringListDto>((XPacketType)311, 311, 0);
+XPacketTypeManager.Register<IntListDto>((XPacketType)50, 50, 0);
+XPacketTypeManager.Register<StringListDto>((XPacketType)51, 51, 0);
 ```
 
 Create `XProtocol.Tests/RoundtripListTests.cs`:
@@ -2042,8 +2042,8 @@ public class StringIntDictDto
 Add registrations:
 
 ```csharp
-XPacketTypeManager.Register<IntStringDictDto>((XPacketType)320, 320, 0);
-XPacketTypeManager.Register<StringIntDictDto>((XPacketType)321, 321, 0);
+XPacketTypeManager.Register<IntStringDictDto>((XPacketType)60, 60, 0);
+XPacketTypeManager.Register<StringIntDictDto>((XPacketType)61, 61, 0);
 ```
 
 Create `XProtocol.Tests/RoundtripDictTests.cs`:
@@ -2437,7 +2437,7 @@ public class Person
 Add registration:
 
 ```csharp
-XPacketTypeManager.Register<Person>((XPacketType)330, 330, 0);
+XPacketTypeManager.Register<Person>((XPacketType)70, 70, 0);
 ```
 
 Create `XProtocol.Tests/RoundtripNestedTests.cs`:
@@ -2550,11 +2550,11 @@ public class NestedWithCollectionsDto
 Add registrations:
 
 ```csharp
-XPacketTypeManager.Register<JaggedIntArrayDto>((XPacketType)340, 340, 0);
-XPacketTypeManager.Register<ListOfIntArrayDto>((XPacketType)341, 341, 0);
-XPacketTypeManager.Register<ListOfListDto>((XPacketType)342, 342, 0);
-XPacketTypeManager.Register<DictOfListDto>((XPacketType)343, 343, 0);
-XPacketTypeManager.Register<NestedWithCollectionsDto>((XPacketType)344, 344, 0);
+XPacketTypeManager.Register<JaggedIntArrayDto>((XPacketType)80, 80, 0);
+XPacketTypeManager.Register<ListOfIntArrayDto>((XPacketType)81, 81, 0);
+XPacketTypeManager.Register<ListOfListDto>((XPacketType)82, 82, 0);
+XPacketTypeManager.Register<DictOfListDto>((XPacketType)83, 83, 0);
+XPacketTypeManager.Register<NestedWithCollectionsDto>((XPacketType)84, 84, 0);
 ```
 
 - [ ] **Step 12.2: Write recursion tests**
