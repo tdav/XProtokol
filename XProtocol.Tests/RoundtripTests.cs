@@ -281,5 +281,19 @@ namespace XProtocol.Tests
             await Assert.That(ex.Message).Contains("exceeds 65535");
             await Assert.That(ex.Message).Contains("StringDto");
         }
+
+        [Test]
+        public async Task Serialize_TotalWireOverflow_Throws()
+        {
+            // 65535 bytes → 257 string chunks; + int + bool = 259 wire fields > 255 cap.
+            var s = new string('x', ushort.MaxValue);
+            var dto = new StringDto { A = 11, S = s, B = false };
+
+            var ex = await Assert.That(() => XPacketConverter.Serialize(dto))
+                .ThrowsExactly<InvalidOperationException>();
+
+            await Assert.That(ex.Message).Contains("exceeds 255 wire fields");
+            await Assert.That(ex.Message).Contains("StringDto");
+        }
     }
 }
