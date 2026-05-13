@@ -63,6 +63,11 @@ namespace XProtocol
                 throw new ArgumentNullException(nameof(payload));
             }
 
+            if (payload.Length == 0)
+            {
+                throw new ArgumentException("Payload must be non-empty.", nameof(payload));
+            }
+
             int offset = 0;
             while (offset < payload.Length)
             {

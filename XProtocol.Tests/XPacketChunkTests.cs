@@ -52,7 +52,7 @@ namespace XProtocol.Tests
         public async Task AppendChunks_Payload902Bytes_ProducesFourFields()
         {
             var p = XPacket.Create(1, 1);
-            var payload = new byte[902];
+            var payload = new byte[902]; // 3 * 255 + 137
 
             p.AppendChunks(payload);
 
@@ -82,6 +82,15 @@ namespace XProtocol.Tests
 
             await Assert.That(() => p.GetRawAt(0))
                 .ThrowsExactly<ArgumentOutOfRangeException>();
+        }
+
+        [Test]
+        public async Task AppendChunks_EmptyPayload_Throws()
+        {
+            var p = XPacket.Create(1, 1);
+
+            await Assert.That(() => p.AppendChunks(Array.Empty<byte>()))
+                .ThrowsExactly<ArgumentException>();
         }
     }
 }
