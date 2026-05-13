@@ -103,5 +103,38 @@ namespace XProtocol.Tests
             await Assert.That(r.Available).IsEqualTo(2);
             await Assert.That(r.ReadByte()).IsEqualTo((byte)3);
         }
+
+        [Test]
+        public async Task ReadByte_SkipsLeadingZeroSizeField()
+        {
+            // Simulate XPacket.Parse output: a zero-size field with null Contents
+            // followed by a real chunk.
+            var p = XPacket.Create(0, 0);
+            p.Fields.Add(new XPacketField { FieldSize = 0, Contents = null });
+            p.Fields.Add(new XPacketField { FieldSize = 2, Contents = new byte[] { 0xAA, 0xBB } });
+
+            var r = new ChunkReader(p, 0);
+
+            await Assert.That(r.ReadByte()).IsEqualTo((byte)0xAA);
+            await Assert.That(r.ReadByte()).IsEqualTo((byte)0xBB);
+            await Assert.That(r.WireIdx).IsEqualTo(2);
+        }
+
+        [Test]
+        public async Task ReadBytes_SkipsInteriorZeroSizeField()
+        {
+            var p = XPacket.Create(0, 0);
+            p.Fields.Add(new XPacketField { FieldSize = 1, Contents = new byte[] { 0xAA } });
+            p.Fields.Add(new XPacketField { FieldSize = 0, Contents = null });
+            p.Fields.Add(new XPacketField { FieldSize = 2, Contents = new byte[] { 0xBB, 0xCC } });
+
+            var r = new ChunkReader(p, 0);
+            var buf = new byte[3];
+            r.ReadBytes(buf, 0, 3);
+
+            await Assert.That(buf[0]).IsEqualTo((byte)0xAA);
+            await Assert.That(buf[1]).IsEqualTo((byte)0xBB);
+            await Assert.That(buf[2]).IsEqualTo((byte)0xCC);
+        }
     }
 }

@@ -40,6 +40,7 @@ namespace XProtocol.Serializator
 
         public byte ReadByte()
         {
+            AdvanceIfChunkExhausted();
             EnsureCanRead(1);
             var b = this.packet.Fields[this.wireIdx].Contents[this.offsetInChunk++];
             AdvanceIfChunkExhausted();
@@ -59,12 +60,14 @@ namespace XProtocol.Serializator
             {
                 throw new ArgumentNullException(nameof(dst));
             }
+            AdvanceIfChunkExhausted();
             EnsureCanRead(count);
 
             int remaining = count;
             int dstOffset = offset;
             while (remaining > 0)
             {
+                AdvanceIfChunkExhausted();
                 var field = this.packet.Fields[this.wireIdx];
                 int take = Math.Min(remaining, field.FieldSize - this.offsetInChunk);
                 Buffer.BlockCopy(field.Contents, this.offsetInChunk, dst, dstOffset, take);
@@ -77,10 +80,11 @@ namespace XProtocol.Serializator
 
         private void EnsureCanRead(int count)
         {
-            if (count > Available)
+            var avail = Available;
+            if (count > avail)
             {
                 throw new InvalidOperationException(
-                    $"payload truncated: requested {count} bytes, only {Available} remaining (wireIdx={this.wireIdx}, fields={this.packet.Fields.Count}).");
+                    $"payload truncated: requested {count} bytes, only {avail} remaining (wireIdx={this.wireIdx}, fields={this.packet.Fields.Count}).");
             }
         }
 
