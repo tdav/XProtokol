@@ -56,6 +56,37 @@ namespace XProtocol
             });
         }
 
+        internal void AppendChunks(byte[] payload)
+        {
+            if (payload == null)
+            {
+                throw new ArgumentNullException(nameof(payload));
+            }
+
+            int offset = 0;
+            while (offset < payload.Length)
+            {
+                int size = Math.Min(byte.MaxValue, payload.Length - offset);
+                var chunk = new byte[size];
+                Buffer.BlockCopy(payload, offset, chunk, 0, size);
+                Fields.Add(new XPacketField
+                {
+                    FieldSize = (byte)size,
+                    Contents = chunk
+                });
+                offset += size;
+            }
+        }
+
+        internal byte[] GetRawAt(int index)
+        {
+            if (index < 0 || index >= Fields.Count)
+            {
+                throw new ArgumentOutOfRangeException(nameof(index));
+            }
+            return Fields[index].Contents ?? Array.Empty<byte>();
+        }
+
         public T GetValueAt<T>(int index) where T : struct
         {
             if (index < 0 || index >= Fields.Count)
