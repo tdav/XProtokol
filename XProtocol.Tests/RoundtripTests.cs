@@ -164,5 +164,69 @@ namespace XProtocol.Tests
 
             await Assert.That(restored.S).IsEqualTo(s);
         }
+
+        [Test]
+        public async Task StringDto_Roundtrip_900ByteAscii_FourStringChunks()
+        {
+            var s = new string('x', 900);
+            var original = new StringDto { A = 5, S = s, B = true };
+            var packet = XPacketConverter.Serialize(original);
+
+            // 1 (int) + ceil((900+2)/255) = 1 + 4 = 5 string-related fields; plus bool = 6 total
+            await Assert.That(packet.Fields.Count).IsEqualTo(6);
+
+            var bytes = packet.ToPacket();
+            var parsed = XPacket.Parse(bytes);
+            var restored = XPacketConverter.Deserialize<StringDto>(parsed);
+
+            await Assert.That(restored.S).IsEqualTo(s);
+            await Assert.That(restored.A).IsEqualTo(5);
+            await Assert.That(restored.B).IsEqualTo(true);
+        }
+
+        [Test]
+        public async Task StringDto_Roundtrip_CyrillicMultiByteUtf8()
+        {
+            var s = "привет мир";
+            var original = new StringDto { A = 6, S = s, B = false };
+            var packet = XPacketConverter.Serialize(original);
+            var bytes = packet.ToPacket();
+            var parsed = XPacket.Parse(bytes);
+
+            var restored = XPacketConverter.Deserialize<StringDto>(parsed);
+
+            await Assert.That(restored.S).IsEqualTo(s);
+        }
+
+        [Test]
+        public async Task StringDto_Roundtrip_EmojiFourByteUtf8()
+        {
+            var s = "abc " + char.ConvertFromUtf32(0x1F680) + " xyz";
+            var original = new StringDto { A = 7, S = s, B = false };
+            var packet = XPacketConverter.Serialize(original);
+            var bytes = packet.ToPacket();
+            var parsed = XPacket.Parse(bytes);
+
+            var restored = XPacketConverter.Deserialize<StringDto>(parsed);
+
+            await Assert.That(restored.S).IsEqualTo(s);
+        }
+
+        [Test]
+        public async Task StringDto_Roundtrip_16000ByteAscii_FitsInWireCap()
+        {
+            var s = new string('x', 16000);
+            var original = new StringDto { A = 8, S = s, B = false };
+            var packet = XPacketConverter.Serialize(original);
+
+            // 16002 / 255 = 62.75 → 63 string chunks; plus int + bool = 65 total wire fields (< 255)
+            await Assert.That(packet.Fields.Count).IsLessThanOrEqualTo((int)byte.MaxValue);
+
+            var bytes = packet.ToPacket();
+            var parsed = XPacket.Parse(bytes);
+            var restored = XPacketConverter.Deserialize<StringDto>(parsed);
+
+            await Assert.That(restored.S).IsEqualTo(s);
+        }
     }
 }
