@@ -22,6 +22,18 @@ namespace XProtocol.Serializator
                 return new ValueShape(t);
             }
 
+            if (t.IsArray)
+            {
+                if (t.GetArrayRank() != 1)
+                {
+                    throw new InvalidOperationException(
+                        $"Multi-dimensional array {t.Name} is not supported. Use jagged arrays instead.");
+                }
+                var elementType = t.GetElementType();
+                var elementShape = Resolve(elementType, visiting);
+                return new ArrayShape(elementType, elementShape);
+            }
+
             throw new InvalidOperationException($"Type {t.Name} is not supported.");
         }
 

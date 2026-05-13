@@ -14,7 +14,7 @@ namespace XProtocol.Tests
     public class BadDtoWithReferenceField
     {
         public int A;
-        public int[] Bad;
+        public System.Collections.Generic.HashSet<int> Bad;
     }
 
     public class StringDto
