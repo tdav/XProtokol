@@ -21,6 +21,8 @@ namespace XProtocol.Serializator
                     return ReadValue(v, reader);
                 case StringShape:
                     return ReadString(reader);
+                case ArrayShape a:
+                    return ReadArray(a, reader);
                 default:
                     throw new InvalidOperationException($"Unsupported shape: {shape.GetType().Name}");
             }
@@ -35,6 +37,9 @@ namespace XProtocol.Serializator
                     break;
                 case StringShape:
                     WriteString(ms, value);
+                    break;
+                case ArrayShape a:
+                    WriteArray(ms, a, value);
                     break;
                 default:
                     throw new InvalidOperationException($"Unsupported shape: {shape.GetType().Name}");
@@ -95,6 +100,50 @@ namespace XProtocol.Serializator
         {
             ms.WriteByte((byte)(v & 0xFF));
             ms.WriteByte((byte)((v >> 8) & 0xFF));
+        }
+
+        private static void WriteArray(MemoryStream ms, ArrayShape shape, object value)
+        {
+            var arr = (Array)value ?? Array.CreateInstance(shape.ElementClrType, 0);
+            if (arr.Length > ushort.MaxValue)
+            {
+                throw new InvalidOperationException(
+                    $"collection exceeds {ushort.MaxValue} elements (actual: {arr.Length}).");
+            }
+            WriteUInt16LE(ms, (ushort)arr.Length);
+
+            if (shape.Element is ValueShape vs && vs.ClrType == typeof(byte))
+            {
+                var src = (byte[])arr;
+                ms.Write(src, 0, src.Length);
+                return;
+            }
+
+            for (int i = 0; i < arr.Length; i++)
+            {
+                WriteFieldInto(ms, shape.Element, arr.GetValue(i));
+            }
+        }
+
+        private static object ReadArray(ArrayShape shape, ChunkReader reader)
+        {
+            int count = reader.ReadUInt16LE();
+            var arr = Array.CreateInstance(shape.ElementClrType, count);
+
+            if (shape.Element is ValueShape vs && vs.ClrType == typeof(byte))
+            {
+                if (count > 0)
+                {
+                    reader.ReadBytes((byte[])arr, 0, count);
+                }
+                return arr;
+            }
+
+            for (int i = 0; i < count; i++)
+            {
+                arr.SetValue(ReadField(shape.Element, reader), i);
+            }
+            return arr;
         }
     }
 }

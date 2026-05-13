@@ -47,6 +47,22 @@ namespace XProtocol.Tests
         public string X;
     }
 
+    public class IntArrayDto
+    {
+        public int A;
+        public int[] Values;
+    }
+
+    public class ByteArrayDto
+    {
+        public byte[] Payload;
+    }
+
+    public class StringArrayDto
+    {
+        public string[] Tags;
+    }
+
     public static class AssemblyFixture
     {
         public const XPacketType SimpleDtoType = (XPacketType)100;
@@ -59,6 +75,9 @@ namespace XProtocol.Tests
             XPacketTypeManager.Register<EmptyDto>(EmptyDtoType, 101, 0);
             XPacketTypeManager.Register<StringDto>((XPacketType)200, 200, 0);
             XPacketTypeManager.Register<MultiStringDto>((XPacketType)201, 201, 0);
+            XPacketTypeManager.Register<IntArrayDto>((XPacketType)300, 44, 0);
+            XPacketTypeManager.Register<ByteArrayDto>((XPacketType)301, 45, 0);
+            XPacketTypeManager.Register<StringArrayDto>((XPacketType)302, 46, 0);
         }
     }
 }
