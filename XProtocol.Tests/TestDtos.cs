@@ -84,6 +84,19 @@ namespace XProtocol.Tests
         public System.Collections.Generic.Dictionary<string, int> Map;
     }
 
+    public class Address
+    {
+        public string Street;
+        public int Zip;
+    }
+
+    public class Person
+    {
+        public string Name;
+        public int Age;
+        public Address Home;
+    }
+
     public static class AssemblyFixture
     {
         public const XPacketType SimpleDtoType = (XPacketType)100;
@@ -102,6 +115,7 @@ namespace XProtocol.Tests
             XPacketTypeManager.Register<StringListDto>((XPacketType)51, 51, 0);
             XPacketTypeManager.Register<IntStringDictDto>((XPacketType)60, 60, 0);
             XPacketTypeManager.Register<StringIntDictDto>((XPacketType)61, 61, 0);
+            XPacketTypeManager.Register<Person>((XPacketType)70, 70, 0);
         }
     }
 }

@@ -27,6 +27,8 @@ namespace XProtocol.Serializator
                     return ReadList(l, reader);
                 case DictShape d:
                     return ReadDict(d, reader);
+                case NestedShape n:
+                    return ReadNested(n, reader);
                 default:
                     throw new InvalidOperationException($"Unsupported shape: {shape.GetType().Name}");
             }
@@ -50,6 +52,9 @@ namespace XProtocol.Serializator
                     break;
                 case DictShape d:
                     WriteDict(ms, d, value);
+                    break;
+                case NestedShape n:
+                    WriteNested(ms, n, value);
                     break;
                 default:
                     throw new InvalidOperationException($"Unsupported shape: {shape.GetType().Name}");
@@ -215,6 +220,25 @@ namespace XProtocol.Serializator
                 dict.Add(key, val);
             }
             return dict;
+        }
+
+        private static void WriteNested(MemoryStream ms, NestedShape shape, object value)
+        {
+            var instance = value ?? Activator.CreateInstance(shape.ClrType);
+            foreach (var desc in shape.Fields)
+            {
+                WriteFieldInto(ms, desc.Shape, desc.Getter(instance));
+            }
+        }
+
+        private static object ReadNested(NestedShape shape, ChunkReader reader)
+        {
+            var instance = Activator.CreateInstance(shape.ClrType);
+            foreach (var desc in shape.Fields)
+            {
+                desc.Setter(instance, ReadField(desc.Shape, reader));
+            }
+            return instance;
         }
     }
 }

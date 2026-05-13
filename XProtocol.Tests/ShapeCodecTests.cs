@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TUnit.Assertions;
@@ -155,6 +156,32 @@ namespace XProtocol.Tests
 
             await Assert.That(bytes.Length).IsEqualTo(2);
             await Assert.That(bytes[0]).IsEqualTo((byte)0);
+        }
+
+        [Test]
+        public async Task WriteNested_Roundtrips()
+        {
+            var shape = ShapeResolver.Resolve(typeof(NestedDtoNeedsFields), new HashSet<System.Type>());
+            var dto = new NestedDtoNeedsFields { X = 999 };
+            var bytes = ShapeCodec.WriteField(shape, dto);
+            var reader = new ChunkReader(WrapAsPacket(bytes), 0);
+
+            var back = (NestedDtoNeedsFields)ShapeCodec.ReadField(shape, reader);
+
+            await Assert.That(back.X).IsEqualTo(999);
+        }
+
+        [Test]
+        public async Task WriteNested_NullInstance_BecomesDefault()
+        {
+            var shape = ShapeResolver.Resolve(typeof(NestedDtoNeedsFields), new HashSet<System.Type>());
+            var bytes = ShapeCodec.WriteField(shape, null);
+            var reader = new ChunkReader(WrapAsPacket(bytes), 0);
+
+            var back = (NestedDtoNeedsFields)ShapeCodec.ReadField(shape, reader);
+
+            await Assert.That(back).IsNotNull();
+            await Assert.That(back.X).IsEqualTo(0);
         }
     }
 }
