@@ -97,6 +97,34 @@ namespace XProtocol.Tests
         public Address Home;
     }
 
+    public class JaggedIntArrayDto
+    {
+        public int[][] Rows;
+    }
+
+    public class ListOfIntArrayDto
+    {
+        public System.Collections.Generic.List<int[]> Buckets;
+    }
+
+    public class ListOfListDto
+    {
+        public System.Collections.Generic.List<System.Collections.Generic.List<string>> Pages;
+    }
+
+    public class DictOfListDto
+    {
+        public System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<int>> Groups;
+    }
+
+    public class NestedWithCollectionsDto
+    {
+        public string Title;
+        public Person Owner;
+        public System.Collections.Generic.List<Person> Members;
+        public System.Collections.Generic.Dictionary<int, Address> Locations;
+    }
+
     public static class AssemblyFixture
     {
         public const XPacketType SimpleDtoType = (XPacketType)100;
@@ -116,6 +144,11 @@ namespace XProtocol.Tests
             XPacketTypeManager.Register<IntStringDictDto>((XPacketType)60, 60, 0);
             XPacketTypeManager.Register<StringIntDictDto>((XPacketType)61, 61, 0);
             XPacketTypeManager.Register<Person>((XPacketType)70, 70, 0);
+            XPacketTypeManager.Register<JaggedIntArrayDto>((XPacketType)80, 80, 0);
+            XPacketTypeManager.Register<ListOfIntArrayDto>((XPacketType)81, 81, 0);
+            XPacketTypeManager.Register<ListOfListDto>((XPacketType)82, 82, 0);
+            XPacketTypeManager.Register<DictOfListDto>((XPacketType)83, 83, 0);
+            XPacketTypeManager.Register<NestedWithCollectionsDto>((XPacketType)84, 84, 0);
         }
     }
 }
