@@ -116,7 +116,7 @@ namespace XProtocol.Serializator
             if (wireIdx != packet.Fields.Count)
             {
                 throw new InvalidOperationException(
-                    $"Field count mismatch for {typeof(T).Name}: expected {wireIdx}, got {packet.Fields.Count}.");
+                    $"Field count mismatch for {typeof(T).Name}: expected {descriptors.Length}, got {packet.Fields.Count}.");
             }
 
             return instance;
