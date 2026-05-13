@@ -44,7 +44,7 @@
 
 ### Building
 
-`dotnet build XProtocol.sln -c Debug`
+`dotnet build XProtocolSol.sln -c Debug`
 
 Expected: `Build succeeded`. Treat any warning that is also an error as a failure.
 
@@ -102,7 +102,7 @@ Expected output includes `On branch master` and **only** the expected pre-existi
 - [ ] **Step 0.2: Run baseline test suite on master**
 
 ```
-dotnet build XProtocol.sln -c Debug
+dotnet build XProtocolSol.sln -c Debug
 dotnet run --project XProtocol.Tests -c Debug
 ```
 
@@ -188,7 +188,7 @@ namespace XProtocol.Tests
 - [ ] **Step 1.2: Run test, expect compile error**
 
 ```
-dotnet build XProtocol.sln -c Debug
+dotnet build XProtocolSol.sln -c Debug
 ```
 
 Expected: `error CS0103: The name 'MarshalHelpers' does not exist`.
@@ -309,7 +309,7 @@ Delete the two private methods at the end of the class (`FixedObjectToByteArray`
 - [ ] **Step 1.6: Run full test suite, expect all 71 tests pass (68 existing + 3 new)**
 
 ```
-dotnet build XProtocol.sln -c Debug
+dotnet build XProtocolSol.sln -c Debug
 dotnet run --project XProtocol.Tests -c Debug
 ```
 
@@ -451,7 +451,7 @@ namespace XProtocol.Tests
 - [ ] **Step 2.2: Run tests, expect compile error**
 
 ```
-dotnet build XProtocol.sln -c Debug
+dotnet build XProtocolSol.sln -c Debug
 ```
 
 Expected: `error CS0246: The type or namespace name 'ChunkReader' could not be found`.
@@ -678,7 +678,7 @@ namespace XProtocol.Serializator
 - [ ] **Step 3.2: Verify it compiles**
 
 ```
-dotnet build XProtocol.sln -c Debug
+dotnet build XProtocolSol.sln -c Debug
 ```
 
 Expected: succeeds (no test exercises this yet; the hierarchy is just declared).
@@ -1063,7 +1063,7 @@ namespace XProtocol.Tests
 - [ ] **Step 4.7: Run full test suite**
 
 ```
-dotnet build XProtocol.sln -c Debug
+dotnet build XProtocolSol.sln -c Debug
 dotnet run --project XProtocol.Tests -c Debug
 ```
 
@@ -1148,7 +1148,7 @@ namespace XProtocol.Tests
 - [ ] **Step 5.2: Run, expect failure**
 
 ```
-dotnet build XProtocol.sln -c Debug
+dotnet build XProtocolSol.sln -c Debug
 dotnet run --project XProtocol.Tests -c Debug -- --treenode-filter "/*/XProtocol.Tests/XProtocol.Tests/FieldShapeResolverTests"
 ```
 
