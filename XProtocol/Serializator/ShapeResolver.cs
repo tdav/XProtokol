@@ -41,6 +41,23 @@ namespace XProtocol.Serializator
                 return new ListShape(elementType, elementShape);
             }
 
+            if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(System.Collections.Generic.Dictionary<,>))
+            {
+                var genericArgs = t.GetGenericArguments();
+                var keyType = genericArgs[0];
+                var valueType = genericArgs[1];
+
+                if (!(keyType.IsValueType || keyType == typeof(string)))
+                {
+                    throw new InvalidOperationException(
+                        $"Dictionary<{keyType.Name}, {valueType.Name}>: key must be value-type or string (got {keyType.Name}).");
+                }
+
+                var keyShape = Resolve(keyType, visiting);
+                var valueShape = Resolve(valueType, visiting);
+                return new DictShape(keyType, valueType, keyShape, valueShape);
+            }
+
             throw new InvalidOperationException($"Type {t.Name} is not supported.");
         }
 
