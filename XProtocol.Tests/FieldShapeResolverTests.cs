@@ -177,5 +177,53 @@ namespace XProtocol.Tests
                 .ThrowsExactly<InvalidOperationException>();
             await Assert.That(ex.Message).Contains("Cycle detected");
         }
+
+        [Test]
+        public async Task Resolve_HashSet_Throws()
+        {
+            var ex = await Assert.That(() => ShapeResolver.Resolve(
+                    typeof(System.Collections.Generic.HashSet<int>),
+                    new HashSet<System.Type>()))
+                .ThrowsExactly<System.InvalidOperationException>();
+            await Assert.That(ex.Message).Contains("is not supported");
+        }
+
+        [Test]
+        public async Task Resolve_Queue_Throws()
+        {
+            var ex = await Assert.That(() => ShapeResolver.Resolve(
+                    typeof(System.Collections.Generic.Queue<int>),
+                    new HashSet<System.Type>()))
+                .ThrowsExactly<System.InvalidOperationException>();
+            await Assert.That(ex.Message).Contains("is not supported");
+        }
+
+        [Test]
+        public async Task Resolve_IEnumerable_Throws()
+        {
+            var ex = await Assert.That(() => ShapeResolver.Resolve(
+                    typeof(System.Collections.Generic.IEnumerable<int>),
+                    new HashSet<System.Type>()))
+                .ThrowsExactly<System.InvalidOperationException>();
+            await Assert.That(ex.Message).Contains("is not supported");
+        }
+
+        [Test]
+        public async Task Resolve_IList_Throws()
+        {
+            var ex = await Assert.That(() => ShapeResolver.Resolve(
+                    typeof(System.Collections.Generic.IList<int>),
+                    new HashSet<System.Type>()))
+                .ThrowsExactly<System.InvalidOperationException>();
+            await Assert.That(ex.Message).Contains("is not supported");
+        }
+
+        [Test]
+        public async Task Resolve_Object_Throws()
+        {
+            var ex = await Assert.That(() => ShapeResolver.Resolve(typeof(object), new HashSet<System.Type>()))
+                .ThrowsExactly<System.InvalidOperationException>();
+            await Assert.That(ex.Message).Contains("is not supported");
+        }
     }
 }
