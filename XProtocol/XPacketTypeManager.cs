@@ -42,11 +42,14 @@ namespace XProtocol
 
         public static (byte Type, byte Subtype) GetType(XPacketType packetType)
         {
-            if (!typeRegistry.TryGetValue(packetType, out var pair))
+            lock (syncRoot)
             {
-                throw new InvalidOperationException($"Packet type {packetType:G} is not registered.");
+                if (!typeRegistry.TryGetValue(packetType, out var pair))
+                {
+                    throw new InvalidOperationException($"Packet type {packetType:G} is not registered.");
+                }
+                return pair;
             }
-            return pair;
         }
 
         public static XPacketType GetTypeFromPacket(XPacket packet)
@@ -54,11 +57,14 @@ namespace XProtocol
             var type = packet.PacketType;
             var subtype = packet.PacketSubtype;
 
-            foreach (var kv in typeRegistry)
+            lock (syncRoot)
             {
-                if (kv.Value.Type == type && kv.Value.Subtype == subtype)
+                foreach (var kv in typeRegistry)
                 {
-                    return kv.Key;
+                    if (kv.Value.Type == type && kv.Value.Subtype == subtype)
+                    {
+                        return kv.Key;
+                    }
                 }
             }
             return XPacketType.Unknown;
@@ -66,22 +72,28 @@ namespace XProtocol
 
         internal static FieldDescriptor[] GetDescriptors(Type t)
         {
-            if (!descriptorCache.TryGetValue(t, out var d))
+            lock (syncRoot)
             {
-                throw new InvalidOperationException(
-                    $"Type {t.Name} is not registered. Call XPacketTypeManager.Register<{t.Name}>(...) first.");
+                if (!descriptorCache.TryGetValue(t, out var d))
+                {
+                    throw new InvalidOperationException(
+                        $"Type {t.Name} is not registered. Call XPacketTypeManager.Register<{t.Name}>(...) first.");
+                }
+                return d;
             }
-            return d;
         }
 
         internal static (byte Type, byte Subtype) GetBytesFor(Type t)
         {
-            if (!bytesByDtoType.TryGetValue(t, out var bytes))
+            lock (syncRoot)
             {
-                throw new InvalidOperationException(
-                    $"Type {t.Name} is not registered. Call XPacketTypeManager.Register<{t.Name}>(...) first.");
+                if (!bytesByDtoType.TryGetValue(t, out var bytes))
+                {
+                    throw new InvalidOperationException(
+                        $"Type {t.Name} is not registered. Call XPacketTypeManager.Register<{t.Name}>(...) first.");
+                }
+                return bytes;
             }
-            return bytes;
         }
 
         private static FieldDescriptor[] BuildDescriptors(Type t)
