@@ -295,5 +295,42 @@ namespace XProtocol.Tests
             await Assert.That(ex.Message).Contains("exceeds 255 wire fields");
             await Assert.That(ex.Message).Contains("StringDto");
         }
+
+        [Test]
+        public async Task Deserialize_StringTruncated_Throws()
+        {
+            var original = new StringDto { A = 12, S = new string('q', 600), B = true };
+            var packet = XPacketConverter.Serialize(original);
+
+            // Layout: [int][string_chunk_0][string_chunk_1][string_chunk_2][bool]
+            // Remove second-to-last to truncate string mid-payload.
+            packet.Fields.RemoveAt(packet.Fields.Count - 2);
+
+            var ex = await Assert.That(() => XPacketConverter.Deserialize<StringDto>(packet))
+                .ThrowsExactly<InvalidOperationException>();
+
+            var msg = ex.Message;
+            var matched = msg.Contains("string truncated") || msg.Contains("Field count mismatch");
+            await Assert.That(matched).IsTrue();
+        }
+
+        [Test]
+        public async Task Deserialize_StringHeaderTruncated_Throws()
+        {
+            var original = new StringDto { A = 13, S = "hi", B = false };
+            var packet = XPacketConverter.Serialize(original);
+
+            // Replace the string descriptor's first chunk (index 1) with a 1-byte field.
+            packet.Fields[1] = new XPacketField
+            {
+                FieldSize = 1,
+                Contents = new byte[] { 0 }
+            };
+
+            var ex = await Assert.That(() => XPacketConverter.Deserialize<StringDto>(packet))
+                .ThrowsExactly<InvalidOperationException>();
+
+            await Assert.That(ex.Message).Contains("string header truncated");
+        }
     }
 }
