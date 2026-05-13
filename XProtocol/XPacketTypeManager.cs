@@ -96,15 +96,6 @@ namespace XProtocol
 
             var sorted = fields.OrderBy(f => f.MetadataToken).ToArray();
 
-            foreach (var f in sorted)
-            {
-                if (!f.FieldType.IsValueType)
-                {
-                    throw new InvalidOperationException(
-                        $"{t.Name}.{f.Name}: only value-type fields are supported.");
-                }
-            }
-
             if (sorted.Length > byte.MaxValue)
             {
                 throw new InvalidOperationException($"{t.Name} has more than {byte.MaxValue} fields.");
