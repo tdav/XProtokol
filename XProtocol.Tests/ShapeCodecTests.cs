@@ -183,5 +183,45 @@ namespace XProtocol.Tests
             await Assert.That(back).IsNotNull();
             await Assert.That(back.X).IsEqualTo(0);
         }
+
+        [Test]
+        public async Task WriteList_TooManyElements_Throws()
+        {
+            var shape = new ListShape(typeof(int), new ValueShape(typeof(int)));
+            var list = new System.Collections.Generic.List<int>();
+            for (int i = 0; i < ushort.MaxValue + 1; i++) list.Add(i);
+
+            var ex = await Assert.That(() => ShapeCodec.WriteField(shape, list))
+                .ThrowsExactly<System.InvalidOperationException>();
+            await Assert.That(ex.Message).Contains("exceeds 65535 elements");
+        }
+
+        [Test]
+        public async Task WriteDict_TooManyEntries_Throws()
+        {
+            var shape = new DictShape(typeof(int), typeof(int),
+                new ValueShape(typeof(int)), new ValueShape(typeof(int)));
+            var dict = new System.Collections.Generic.Dictionary<int, int>();
+            for (int i = 0; i < ushort.MaxValue + 1; i++) dict[i] = i;
+
+            var ex = await Assert.That(() => ShapeCodec.WriteField(shape, dict))
+                .ThrowsExactly<System.InvalidOperationException>();
+            await Assert.That(ex.Message).Contains("exceeds 65535 elements");
+        }
+
+        [Test]
+        public async Task ReadArray_PayloadTruncated_Throws()
+        {
+            var shape = new ArrayShape(typeof(int), new ValueShape(typeof(int)));
+            // Forge a payload that claims count=2 but supplies only 4 bytes (one int).
+            var payload = new byte[] { 0x02, 0x00, 0x01, 0x00, 0x00, 0x00 };
+            var p = XPacket.Create(0, 0);
+            p.AppendChunks(payload);
+            var reader = new ChunkReader(p, 0);
+
+            var ex = await Assert.That(() => ShapeCodec.ReadField(shape, reader))
+                .ThrowsExactly<System.InvalidOperationException>();
+            await Assert.That(ex.Message).Contains("payload truncated");
+        }
     }
 }
