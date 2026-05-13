@@ -42,6 +42,11 @@ namespace XProtocol.Tests
         public int X;
     }
 
+    public class RegistrationOnlyStringDto
+    {
+        public string X;
+    }
+
     public static class AssemblyFixture
     {
         public const XPacketType SimpleDtoType = (XPacketType)100;
