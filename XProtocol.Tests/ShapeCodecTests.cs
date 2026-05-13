@@ -128,5 +128,33 @@ namespace XProtocol.Tests
 
             await Assert.That(back).IsEquivalentTo(new[] { "x", "yy" });
         }
+
+        [Test]
+        public async Task WriteDict_IntToString_Roundtrips()
+        {
+            var shape = new DictShape(typeof(int), typeof(string),
+                new ValueShape(typeof(int)), StringShape.Instance);
+
+            var dict = new System.Collections.Generic.Dictionary<int, string> { { 1, "one" }, { 2, "two" } };
+            var bytes = ShapeCodec.WriteField(shape, dict);
+            var reader = new ChunkReader(WrapAsPacket(bytes), 0);
+
+            var back = (System.Collections.Generic.Dictionary<int, string>)ShapeCodec.ReadField(shape, reader);
+
+            await Assert.That(back.Count).IsEqualTo(2);
+            await Assert.That(back[1]).IsEqualTo("one");
+            await Assert.That(back[2]).IsEqualTo("two");
+        }
+
+        [Test]
+        public async Task WriteDict_NullValue_TreatedAsEmpty()
+        {
+            var shape = new DictShape(typeof(int), typeof(int),
+                new ValueShape(typeof(int)), new ValueShape(typeof(int)));
+            var bytes = ShapeCodec.WriteField(shape, null);
+
+            await Assert.That(bytes.Length).IsEqualTo(2);
+            await Assert.That(bytes[0]).IsEqualTo((byte)0);
+        }
     }
 }

@@ -74,6 +74,16 @@ namespace XProtocol.Tests
         public System.Collections.Generic.List<string> Items;
     }
 
+    public class IntStringDictDto
+    {
+        public System.Collections.Generic.Dictionary<int, string> Map;
+    }
+
+    public class StringIntDictDto
+    {
+        public System.Collections.Generic.Dictionary<string, int> Map;
+    }
+
     public static class AssemblyFixture
     {
         public const XPacketType SimpleDtoType = (XPacketType)100;
@@ -91,6 +101,8 @@ namespace XProtocol.Tests
             XPacketTypeManager.Register<StringArrayDto>((XPacketType)302, 46, 0);
             XPacketTypeManager.Register<IntListDto>((XPacketType)50, 50, 0);
             XPacketTypeManager.Register<StringListDto>((XPacketType)51, 51, 0);
+            XPacketTypeManager.Register<IntStringDictDto>((XPacketType)60, 60, 0);
+            XPacketTypeManager.Register<StringIntDictDto>((XPacketType)61, 61, 0);
         }
     }
 }

@@ -25,6 +25,8 @@ namespace XProtocol.Serializator
                     return ReadArray(a, reader);
                 case ListShape l:
                     return ReadList(l, reader);
+                case DictShape d:
+                    return ReadDict(d, reader);
                 default:
                     throw new InvalidOperationException($"Unsupported shape: {shape.GetType().Name}");
             }
@@ -45,6 +47,9 @@ namespace XProtocol.Serializator
                     break;
                 case ListShape l:
                     WriteList(ms, l, value);
+                    break;
+                case DictShape d:
+                    WriteDict(ms, d, value);
                     break;
                 default:
                     throw new InvalidOperationException($"Unsupported shape: {shape.GetType().Name}");
@@ -178,6 +183,38 @@ namespace XProtocol.Serializator
                 list.Add(ReadField(shape.Element, reader));
             }
             return list;
+        }
+
+        private static void WriteDict(MemoryStream ms, DictShape shape, object value)
+        {
+            var dictType = typeof(System.Collections.Generic.Dictionary<,>).MakeGenericType(shape.KeyClrType, shape.ValueClrType);
+            var dict = (System.Collections.IDictionary)(value ?? Activator.CreateInstance(dictType));
+            if (dict.Count > ushort.MaxValue)
+            {
+                throw new InvalidOperationException(
+                    $"collection exceeds {ushort.MaxValue} elements (actual: {dict.Count}).");
+            }
+            WriteUInt16LE(ms, (ushort)dict.Count);
+
+            foreach (System.Collections.DictionaryEntry entry in dict)
+            {
+                WriteFieldInto(ms, shape.Key, entry.Key);
+                WriteFieldInto(ms, shape.Value, entry.Value);
+            }
+        }
+
+        private static object ReadDict(DictShape shape, ChunkReader reader)
+        {
+            int count = reader.ReadUInt16LE();
+            var dictType = typeof(System.Collections.Generic.Dictionary<,>).MakeGenericType(shape.KeyClrType, shape.ValueClrType);
+            var dict = (System.Collections.IDictionary)Activator.CreateInstance(dictType);
+            for (int i = 0; i < count; i++)
+            {
+                var key = ReadField(shape.Key, reader);
+                var val = ReadField(shape.Value, reader);
+                dict.Add(key, val);
+            }
+            return dict;
         }
     }
 }
