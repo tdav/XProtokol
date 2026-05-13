@@ -21,6 +21,18 @@ namespace XProtocol.Serializator
 
         public int WireIdx => this.wireIdx;
 
+        public int CurrentChunkRemaining
+        {
+            get
+            {
+                if (this.wireIdx >= this.packet.Fields.Count)
+                {
+                    return 0;
+                }
+                return this.packet.Fields[this.wireIdx].FieldSize - this.offsetInChunk;
+            }
+        }
+
         public int Available
         {
             get

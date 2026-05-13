@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using XProtocol.Serializator;
 
 namespace XProtocol
@@ -98,22 +96,7 @@ namespace XProtocol
 
         private static FieldDescriptor[] BuildDescriptors(Type t)
         {
-            var fields = new List<FieldInfo>();
-            for (var current = t; current != null && current != typeof(object); current = current.BaseType)
-            {
-                fields.AddRange(
-                    current.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
-                           .Where(f => !f.IsLiteral));
-            }
-
-            var sorted = fields.OrderBy(f => f.MetadataToken).ToArray();
-
-            if (sorted.Length > byte.MaxValue)
-            {
-                throw new InvalidOperationException($"{t.Name} has more than {byte.MaxValue} fields.");
-            }
-
-            return sorted.Select(f => new FieldDescriptor(f)).ToArray();
+            return ShapeResolver.BuildDescriptors(t, new HashSet<Type>());
         }
     }
 }

@@ -1,5 +1,4 @@
 using System;
-using System.Text;
 
 namespace XProtocol.Serializator
 {
@@ -18,33 +17,23 @@ namespace XProtocol.Serializator
 
             foreach (var desc in descriptors)
             {
-                if (desc.Kind == FieldKind.ValueType)
+                byte[] bytes;
+                try
                 {
-                    packet.AppendValue(desc.Getter(obj));
+                    bytes = ShapeCodec.WriteField(desc.Shape, desc.Getter(obj));
                 }
-                else
+                catch (InvalidOperationException ex)
                 {
-                    var s = desc.StringGetter(obj) ?? string.Empty;
-                    var utf8 = Encoding.UTF8.GetBytes(s);
-
-                    if (utf8.Length > ushort.MaxValue)
-                    {
-                        throw new InvalidOperationException(
-                            $"{typeof(T).Name}.{desc.Field.Name}: string exceeds {ushort.MaxValue} UTF-8 bytes (actual: {utf8.Length}).");
-                    }
-
-                    var payload = new byte[utf8.Length + 2];
-                    payload[0] = (byte)(utf8.Length & 0xFF);
-                    payload[1] = (byte)((utf8.Length >> 8) & 0xFF);
-                    Buffer.BlockCopy(utf8, 0, payload, 2, utf8.Length);
-                    packet.AppendChunks(payload);
+                    throw new InvalidOperationException(
+                        $"{typeof(T).Name}.{desc.Field.Name}: {ex.Message}", ex);
                 }
+                packet.AppendChunks(bytes);
             }
 
             if (packet.Fields.Count > byte.MaxValue)
             {
                 throw new InvalidOperationException(
-                    $"{typeof(T).Name}: packet exceeds {byte.MaxValue} wire fields (actual: {packet.Fields.Count}). Reduce string field sizes.");
+                    $"{typeof(T).Name}: packet exceeds {byte.MaxValue} wire fields (actual: {packet.Fields.Count}).");
             }
 
             return packet;
@@ -59,64 +48,38 @@ namespace XProtocol.Serializator
 
             var descriptors = XPacketTypeManager.GetDescriptors(typeof(T));
             var instance = new T();
-            int wireIdx = 0;
+            var reader = new ChunkReader(packet, 0);
 
             foreach (var desc in descriptors)
             {
-                if (desc.Kind == FieldKind.ValueType)
+                object value;
+                try
                 {
-                    if (wireIdx >= packet.Fields.Count)
-                    {
-                        throw new InvalidOperationException(
-                            $"Field count mismatch for {typeof(T).Name}: expected {descriptors.Length}, got {packet.Fields.Count}.");
-                    }
-                    var raw = packet.GetValueAt(wireIdx, desc.Field.FieldType);
-                    desc.Setter(instance, raw);
-                    wireIdx++;
+                    value = ShapeCodec.ReadField(desc.Shape, reader);
                 }
-                else
+                catch (InvalidOperationException ex)
                 {
-                    if (wireIdx >= packet.Fields.Count)
+                    if (desc.Shape is ValueShape)
+                    {
+                        // Insufficient bytes for a value-type means the wire is short on whole fields.
+                        throw new InvalidOperationException(
+                            $"Field count mismatch for {typeof(T).Name}: expected {descriptors.Length}, got {packet.Fields.Count}.", ex);
+                    }
+                    if (desc.Shape is StringShape)
                     {
                         throw new InvalidOperationException(
-                            $"Field count mismatch for {typeof(T).Name}: expected {descriptors.Length}, got {packet.Fields.Count}.");
+                            $"{typeof(T).Name}.{desc.Field.Name}: string truncated ({ex.Message}).", ex);
                     }
-                    var first = packet.GetRawAt(wireIdx++);
-                    if (first.Length < 2)
-                    {
-                        throw new InvalidOperationException(
-                            $"{typeof(T).Name}.{desc.Field.Name}: string header truncated (first chunk size {first.Length} < 2).");
-                    }
-                    int len = first[0] | (first[1] << 8);
-
-                    var acc = new byte[len];
-                    int filled = 0;
-                    int firstPayload = Math.Min(first.Length - 2, len);
-                    Buffer.BlockCopy(first, 2, acc, 0, firstPayload);
-                    filled += firstPayload;
-
-                    while (filled < len)
-                    {
-                        if (wireIdx >= packet.Fields.Count)
-                        {
-                            throw new InvalidOperationException(
-                                $"{typeof(T).Name}.{desc.Field.Name}: string truncated (need {len} bytes, have {filled} after consuming all remaining wire fields).");
-                        }
-                        var next = packet.GetRawAt(wireIdx++);
-                        int take = Math.Min(next.Length, len - filled);
-                        Buffer.BlockCopy(next, 0, acc, filled, take);
-                        filled += take;
-                    }
-
-                    var str = Encoding.UTF8.GetString(acc);
-                    desc.StringSetter(instance, str);
+                    throw new InvalidOperationException(
+                        $"{typeof(T).Name}.{desc.Field.Name}: {ex.Message}", ex);
                 }
+                desc.Setter(instance, value);
             }
 
-            if (wireIdx != packet.Fields.Count)
+            if (reader.Available != 0)
             {
                 throw new InvalidOperationException(
-                    $"Field count mismatch for {typeof(T).Name}: expected {descriptors.Length}, got {packet.Fields.Count}.");
+                    $"Field count mismatch for {typeof(T).Name}: trailing bytes after all descriptors consumed (remaining: {reader.Available}, wireIdx: {reader.WireIdx}, fields: {packet.Fields.Count}).");
             }
 
             return instance;
