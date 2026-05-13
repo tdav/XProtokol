@@ -22,7 +22,8 @@ bld/
 [Oo]bj/
 [Ll]og/
 BenchmarkDotNet.Artifacts/
-docs/
+docs/*
+!docs/superpowers/
 .claude/
 .serena/
 
