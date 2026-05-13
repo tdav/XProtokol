@@ -223,8 +223,15 @@ namespace XProtocol
             var rawBytes = packet.ToPacket();
             var encrypted = XProtocolEncryptor.Encrypt(rawBytes);
 
+            int requiredFields = (encrypted.Length + byte.MaxValue - 1) / byte.MaxValue;
+            if (requiredFields > byte.MaxValue)
+            {
+                throw new InvalidOperationException(
+                    $"Encrypted packet exceeds {byte.MaxValue} wire fields (needs {requiredFields}). Reduce payload size.");
+            }
+
             var p = Create(0, 0);
-            p.AppendRawBytes(encrypted);
+            p.AppendChunks(encrypted);
             p.ChangeHeaders = true;
             return p;
         }
@@ -236,12 +243,28 @@ namespace XProtocol
 
         private static XPacket DecryptPacket(XPacket packet)
         {
-            if (packet == null || packet.Fields.Count != 1)
+            if (packet == null || packet.Fields.Count == 0)
             {
                 return null;
             }
 
-            var rawData = packet.Fields[0].Contents;
+            int total = 0;
+            foreach (var f in packet.Fields)
+            {
+                total += f.FieldSize;
+            }
+
+            var rawData = new byte[total];
+            int offset = 0;
+            foreach (var f in packet.Fields)
+            {
+                if (f.FieldSize > 0)
+                {
+                    Buffer.BlockCopy(f.Contents, 0, rawData, offset, f.FieldSize);
+                    offset += f.FieldSize;
+                }
+            }
+
             var decrypted = XProtocolEncryptor.Decrypt(rawData);
             return Parse(decrypted, true);
         }
