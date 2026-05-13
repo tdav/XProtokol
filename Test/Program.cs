@@ -15,7 +15,6 @@ namespace Test
     {
         private static void Main()
         {
-            XPacketTypeManager.Register<TestPacket>(XPacketType.TestPacket, 2, 0);
 
             Console.Title = "";
             Console.ForegroundColor = ConsoleColor.White;
