@@ -23,6 +23,8 @@ namespace XProtocol.Serializator
                     return ReadString(reader);
                 case ArrayShape a:
                     return ReadArray(a, reader);
+                case ListShape l:
+                    return ReadList(l, reader);
                 default:
                     throw new InvalidOperationException($"Unsupported shape: {shape.GetType().Name}");
             }
@@ -40,6 +42,9 @@ namespace XProtocol.Serializator
                     break;
                 case ArrayShape a:
                     WriteArray(ms, a, value);
+                    break;
+                case ListShape l:
+                    WriteList(ms, l, value);
                     break;
                 default:
                     throw new InvalidOperationException($"Unsupported shape: {shape.GetType().Name}");
@@ -144,6 +149,35 @@ namespace XProtocol.Serializator
                 arr.SetValue(ReadField(shape.Element, reader), i);
             }
             return arr;
+        }
+
+        private static void WriteList(MemoryStream ms, ListShape shape, object value)
+        {
+            var listType = typeof(System.Collections.Generic.List<>).MakeGenericType(shape.ElementClrType);
+            var list = (System.Collections.IList)(value ?? Activator.CreateInstance(listType));
+            if (list.Count > ushort.MaxValue)
+            {
+                throw new InvalidOperationException(
+                    $"collection exceeds {ushort.MaxValue} elements (actual: {list.Count}).");
+            }
+            WriteUInt16LE(ms, (ushort)list.Count);
+
+            foreach (var item in list)
+            {
+                WriteFieldInto(ms, shape.Element, item);
+            }
+        }
+
+        private static object ReadList(ListShape shape, ChunkReader reader)
+        {
+            int count = reader.ReadUInt16LE();
+            var listType = typeof(System.Collections.Generic.List<>).MakeGenericType(shape.ElementClrType);
+            var list = (System.Collections.IList)Activator.CreateInstance(listType);
+            for (int i = 0; i < count; i++)
+            {
+                list.Add(ReadField(shape.Element, reader));
+            }
+            return list;
         }
     }
 }

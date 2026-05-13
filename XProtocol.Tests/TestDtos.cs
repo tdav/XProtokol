@@ -63,6 +63,17 @@ namespace XProtocol.Tests
         public string[] Tags;
     }
 
+    public class IntListDto
+    {
+        public System.Collections.Generic.List<int> Numbers;
+    }
+
+    public class StringListDto
+    {
+        public string Header;
+        public System.Collections.Generic.List<string> Items;
+    }
+
     public static class AssemblyFixture
     {
         public const XPacketType SimpleDtoType = (XPacketType)100;
@@ -78,6 +89,8 @@ namespace XProtocol.Tests
             XPacketTypeManager.Register<IntArrayDto>((XPacketType)300, 44, 0);
             XPacketTypeManager.Register<ByteArrayDto>((XPacketType)301, 45, 0);
             XPacketTypeManager.Register<StringArrayDto>((XPacketType)302, 46, 0);
+            XPacketTypeManager.Register<IntListDto>((XPacketType)50, 50, 0);
+            XPacketTypeManager.Register<StringListDto>((XPacketType)51, 51, 0);
         }
     }
 }

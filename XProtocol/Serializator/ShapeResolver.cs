@@ -34,6 +34,13 @@ namespace XProtocol.Serializator
                 return new ArrayShape(elementType, elementShape);
             }
 
+            if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(System.Collections.Generic.List<>))
+            {
+                var elementType = t.GetGenericArguments()[0];
+                var elementShape = Resolve(elementType, visiting);
+                return new ListShape(elementType, elementShape);
+            }
+
             throw new InvalidOperationException($"Type {t.Name} is not supported.");
         }
 

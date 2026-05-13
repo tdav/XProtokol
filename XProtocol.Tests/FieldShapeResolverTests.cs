@@ -37,5 +37,25 @@ namespace XProtocol.Tests
                 .ThrowsExactly<InvalidOperationException>();
             await Assert.That(ex.Message).Contains("is not supported");
         }
+
+        [Test]
+        public async Task Resolve_ListOfDouble_ReturnsListShape()
+        {
+            var shape = ShapeResolver.Resolve(typeof(System.Collections.Generic.List<double>), new HashSet<Type>());
+
+            await Assert.That(shape).IsTypeOf<ListShape>();
+            var lst = (ListShape)shape;
+            await Assert.That(lst.ElementClrType).IsEqualTo(typeof(double));
+            await Assert.That(lst.Element).IsTypeOf<ValueShape>();
+        }
+
+        [Test]
+        public async Task Resolve_ListOfString_ReturnsListOfString()
+        {
+            var shape = ShapeResolver.Resolve(typeof(System.Collections.Generic.List<string>), new HashSet<Type>());
+
+            var lst = (ListShape)shape;
+            await Assert.That(lst.Element).IsTypeOf<StringShape>();
+        }
     }
 }

@@ -91,5 +91,42 @@ namespace XProtocol.Tests
             await Assert.That(back[0]).IsEqualTo("a");
             await Assert.That(back[1]).IsEqualTo("bb");
         }
+
+        [Test]
+        public async Task WriteList_IntElements_RoundtripsViaReader()
+        {
+            var shape = new ListShape(typeof(int), new ValueShape(typeof(int)));
+            var bytes = ShapeCodec.WriteField(shape, new System.Collections.Generic.List<int> { 100, 200, 300 });
+            var reader = new ChunkReader(WrapAsPacket(bytes), 0);
+
+            var back = (System.Collections.Generic.List<int>)ShapeCodec.ReadField(shape, reader);
+
+            await Assert.That(back.Count).IsEqualTo(3);
+            await Assert.That(back[0]).IsEqualTo(100);
+            await Assert.That(back[2]).IsEqualTo(300);
+        }
+
+        [Test]
+        public async Task WriteList_NullValue_TreatedAsEmpty()
+        {
+            var shape = new ListShape(typeof(int), new ValueShape(typeof(int)));
+            var bytes = ShapeCodec.WriteField(shape, null);
+
+            await Assert.That(bytes.Length).IsEqualTo(2);
+            await Assert.That(bytes[0]).IsEqualTo((byte)0);
+            await Assert.That(bytes[1]).IsEqualTo((byte)0);
+        }
+
+        [Test]
+        public async Task WriteList_StringElements_Roundtrips()
+        {
+            var shape = new ListShape(typeof(string), StringShape.Instance);
+            var bytes = ShapeCodec.WriteField(shape, new System.Collections.Generic.List<string> { "x", "yy" });
+            var reader = new ChunkReader(WrapAsPacket(bytes), 0);
+
+            var back = (System.Collections.Generic.List<string>)ShapeCodec.ReadField(shape, reader);
+
+            await Assert.That(back).IsEquivalentTo(new[] { "x", "yy" });
+        }
     }
 }
