@@ -8,30 +8,6 @@ namespace XProtocol.Tests
 {
     public class RoundtripTests
     {
-        private static readonly object registrationLock = new object();
-        private static bool stringDtoRegistered;
-        private static bool multiStringDtoRegistered;
-
-        private static void EnsureStringDtoRegistered()
-        {
-            lock (registrationLock)
-            {
-                if (stringDtoRegistered) return;
-                XPacketTypeManager.Register<StringDto>((XPacketType)200, 200, 0);
-                stringDtoRegistered = true;
-            }
-        }
-
-        private static void EnsureMultiStringDtoRegistered()
-        {
-            lock (registrationLock)
-            {
-                if (multiStringDtoRegistered) return;
-                XPacketTypeManager.Register<MultiStringDto>((XPacketType)201, 201, 0);
-                multiStringDtoRegistered = true;
-            }
-        }
-
         [Test]
         public async Task SimpleDto_RoundtripPreservesValues()
         {
@@ -95,8 +71,6 @@ namespace XProtocol.Tests
         [Test]
         public async Task StringDto_RoundtripShortAscii()
         {
-            EnsureStringDtoRegistered();
-
             var original = new StringDto { A = 7, S = "hello", B = true };
 
             var packet = XPacketConverter.Serialize(original);
