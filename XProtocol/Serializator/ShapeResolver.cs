@@ -70,11 +70,6 @@ namespace XProtocol.Serializator
 
             if (t.IsClass)
             {
-                if (t.IsAbstract || t.IsInterface || t.ContainsGenericParameters)
-                {
-                    throw new InvalidOperationException(
-                        $"Type {t.Name} is not supported (abstract/interface/open generic).");
-                }
                 if (t.GetConstructor(Type.EmptyTypes) == null)
                 {
                     throw new InvalidOperationException(
