@@ -45,5 +45,26 @@ namespace XProtocol.Tests
 
             await Assert.That(ex.Message).Contains("not registered");
         }
+
+        [Test]
+        public async Task Register_AllowsStringField()
+        {
+            XPacketTypeManager.Register<RegistrationOnlyStringDto>((XPacketType)210, 210, 0);
+
+            var (type, subtype) = XPacketTypeManager.GetType((XPacketType)210);
+            await Assert.That(type).IsEqualTo((byte)210);
+            await Assert.That(subtype).IsEqualTo((byte)0);
+        }
+
+        [Test]
+        public async Task Register_RejectsObjectField()
+        {
+            var ex = await Assert.That(() =>
+                XPacketTypeManager.Register<UnsupportedRefDto>((XPacketType)211, 211, 0))
+                .ThrowsExactly<InvalidOperationException>();
+
+            await Assert.That(ex.Message).Contains("only value-type fields");
+            await Assert.That(ex.Message).Contains("UnsupportedRefDto");
+        }
     }
 }
